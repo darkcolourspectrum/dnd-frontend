@@ -1,38 +1,149 @@
 import axios from 'axios';
+import { API_CONFIG } from './config';
+import type { GameSession, SessionPlayer } from '../types/gameTypes';
 
-const API_URL = 'https://rg55nfxi0i.loclx.io/';
+interface CreateSessionParams {
+  maxPlayers: number;
+  token: string;
+}
 
-export const createGameSession = async (maxPlayers: number, token: string) => {
+interface JoinSessionParams {
+  sessionId: string;
+  characterId: number;
+  token: string;
+}
+
+export const createGameSession = async ({
+  maxPlayers,
+  token
+}: CreateSessionParams): Promise<GameSession> => {
   const response = await axios.post(
-    `${API_URL}/gamesessions/`,
-    { max_players: maxPlayers },
-    { headers: { Authorization: `Bearer ${token}` } }
+    `${API_CONFIG.BASE_URL}/gamesessions/`,
+    { max_players: maxPlayers },  // Исправлено на snake_case
+    { 
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      } 
+    }
   );
   return response.data;
 };
 
-export const joinGameSession = async (sessionId: string, characterId: number, token: string) => {
-  const response = await axios.post(
-    `${API_URL}/gamesessions/${sessionId}/join`,
-    { character_id: characterId },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
+export const getAvailableSessions = async (token: string): Promise<GameSession[]> => {
+  try {
+    const response = await axios.get(
+      `${API_CONFIG.BASE_URL}/gamesessions?status=waiting`,
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        } 
+      }
+    );
+    return response.data || [];
+  } catch (error) {
+    console.error('Error fetching sessions:', error);
+    return [];
+  }
 };
 
-// Добавляем к существующим функциям в gameSessions.ts
-export const getSessionDetails = async (sessionId: string, token: string) => {
-  const response = await axios.get(`${API_URL}/gamesessions/${sessionId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
+export const getSessionById = async (
+  sessionId: string, 
+  token: string
+): Promise<GameSession | null> => {
+  try {
+    const response = await axios.get(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error loading session ${sessionId}:`, error);
+    return null;
+  }
 };
 
-export const startGameSession = async (sessionId: string, token: string) => {
-  const response = await axios.post(
-    `${API_URL}/gamesessions/${sessionId}/start`,
-    {},
-    { headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
+export const joinSession = async ({
+  sessionId,
+  characterId,
+  token
+}: JoinSessionParams): Promise<SessionPlayer> => {
+  try {
+    const response = await axios.post(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}/join`,
+      { character_id: characterId },
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Join session error:', error);
+    throw new Error('Failed to join session');
+  }
+};
+
+export const updateReadyStatus = async (
+  sessionId: string,
+  isReady: boolean,
+  token: string
+): Promise<SessionPlayer> => {
+  try {
+    const response = await axios.patch(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}/ready`,
+      { is_ready: isReady },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating ready status:', error);
+    throw new Error('Failed to update status');
+  }
+};
+
+export const startSession = async (
+  sessionId: string,
+  token: string
+): Promise<GameSession> => {
+  try {
+    const response = await axios.post(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}/start`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Session start error:', error);
+    throw new Error('Failed to start session');
+  }
+};
+
+export const getSessionPlayers = async (sessionId: string, token: string): Promise<SessionPlayer[]> => {
+  try {
+    const response = await axios.get(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}/players`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching session players:', error);
+    return [];
+  }
+};
+
+export const toggleReadyStatus = async (sessionId: string, token: string): Promise<SessionPlayer> => {
+  try {
+    const response = await axios.post(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}/ready`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling ready status:', error);
+    throw new Error('Failed to toggle ready status');
+  }
 };

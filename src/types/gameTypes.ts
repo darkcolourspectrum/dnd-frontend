@@ -20,6 +20,7 @@ export interface SessionPlayer {
   id: number;
   user_id: number;
   character_id: number | null;
+  is_ready: boolean; 
   is_gm: boolean;
 }
 

@@ -74,7 +74,7 @@ const CreateCharacter: React.FC<{ onCreated: () => void }> = ({ onCreated }) => 
           <input
             type="number"
             min="1"
-            max="20"
+            max="15"
             value={formData.strength}
             onChange={(e) => setFormData({...formData, strength: parseInt(e.target.value)})}
           />
@@ -85,7 +85,7 @@ const CreateCharacter: React.FC<{ onCreated: () => void }> = ({ onCreated }) => 
           <input
             type="number"
             min="1"
-            max="20"
+            max="15"
             value={formData.dexterity}
             onChange={(e) => setFormData({...formData, dexterity: parseInt(e.target.value)})}
           />
@@ -96,7 +96,7 @@ const CreateCharacter: React.FC<{ onCreated: () => void }> = ({ onCreated }) => 
           <input
             type="number"
             min="1"
-            max="20"
+            max="15"
             value={formData.intelligence}
             onChange={(e) => setFormData({...formData, intelligence: parseInt(e.target.value)})}
           />

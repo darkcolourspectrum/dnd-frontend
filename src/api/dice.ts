@@ -1,10 +1,10 @@
 import axios from 'axios';
+import { API_CONFIG } from './config';
 
-const API_URL = 'https://rg55nfxi0i.loclx.io/';
 
 export const rollDice = async (formula: string) => {
   const response = await axios.post(
-    `${API_URL}/dice/roll`,
+    `${API_CONFIG.BASE_URL}/dice/roll`,
     { dice_formula: formula }
   );
   return response.data;

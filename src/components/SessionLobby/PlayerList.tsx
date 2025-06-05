@@ -1,32 +1,41 @@
 import React from 'react';
-
-interface Player {
-  id: number;
-  user_id: number;
-  character_id: number | null;
-  is_gm: boolean;
-  is_ready: boolean;
-  user?: {
-    nickname: string;
-  };
-}
+import { SessionPlayer, Character } from '../../types/gameTypes';
 
 interface PlayerListProps {
-  players: Player[];
-  currentUserId: number;
+  players: SessionPlayer[];
+  currentUserId: number | null; 
+  characters: Character[]; 
 }
 
-const PlayerList: React.FC<PlayerListProps> = ({ players, currentUserId }) => {
+const PlayerList: React.FC<PlayerListProps> = ({ 
+  players, 
+  currentUserId, 
+  characters 
+}) => {
+  const getCharacterName = (characterId: number | null) => {
+    if (!characterId) return 'No character selected';
+    const character = characters.find(c => c.id === characterId);
+    return character ? character.name : 'Unknown character';
+  };
+
   return (
     <div className="player-list">
-      <h3>Players:</h3>
+      <h3>Players in Session</h3>
       <ul>
         {players.map(player => (
-          <li key={player.id} className={player.user_id === currentUserId ? 'current-user' : ''}>
-            {player.user?.nickname || `Player ${player.user_id}`}
-            {player.is_gm && ' (GM)'}
-            {player.character_id && ` - Character #${player.character_id}`}
-            {player.is_ready && ' - Ready'}
+          <li 
+            key={player.id} 
+            className={`player-item ${player.user_id === currentUserId ? 'current' : ''}`}
+          >
+            <div className="player-info">
+              <span className="player-name">Player {player.user_id}</span>
+              <span className={`status ${player.is_ready ? 'ready' : 'not-ready'}`}>
+                {player.is_ready ? 'Ready' : 'Not Ready'}
+              </span>
+            </div>
+            <div className="character-info">
+              {getCharacterName(player.character_id)}
+            </div>
           </li>
         ))}
       </ul>

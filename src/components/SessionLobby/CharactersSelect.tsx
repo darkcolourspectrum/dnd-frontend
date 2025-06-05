@@ -1,75 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { getCharacters } from '../../api/characters';
-import { useAuth } from '../../contexts/AuthContext';
-
-interface Character {
-  id: number;
-  name: string;
-  race: string;
-  class_: string;
-}
+import React from 'react';
+import { Character } from '../../types/gameTypes';
 
 interface CharacterSelectProps {
+  characters: Character[];
   selectedCharacter: number | null;
-  onSelect: (id: number) => void;
-  onJoin: (characterId: number) => void;
+  onSelect: (characterId: number) => void;
+  disabled?: boolean;
+  onJoin?: () => void;
 }
 
 const CharacterSelect: React.FC<CharacterSelectProps> = ({ 
+  characters, 
   selectedCharacter, 
-  onSelect,
-  onJoin
+  onSelect, 
+  disabled 
 }) => {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { token } = useAuth();
-
-  useEffect(() => {
-    const fetchCharacters = async () => {
-      if (!token) return;
-      
-      try {
-        setIsLoading(true);
-        const data = await getCharacters(token);
-        setCharacters(data);
-      } catch (error) {
-        console.error('Error fetching characters:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchCharacters();
-  }, [token]);
-
-  if (isLoading) return <div>Loading characters...</div>;
-
   return (
     <div className="character-select">
-      <h3>Select your character:</h3>
-      <select
-        value={selectedCharacter || ''}
-        onChange={(e) => onSelect(Number(e.target.value))}
-        disabled={characters.length === 0}
-      >
-        <option value="">-- Select character --</option>
-        {characters.map(char => (
-          <option key={char.id} value={char.id}>
-            {char.name} ({char.race} {char.class_})
-          </option>
+      <h3>Select Your Character</h3>
+      <div className="character-list">
+        {characters.map(character => (
+          <div
+            key={character.id}
+            className={`character-card ${selectedCharacter === character.id ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+            onClick={() => !disabled && onSelect(character.id)}
+          >
+            <h4>{character.name}</h4>
+            <p>Class: {character.class}</p>
+            <p>Race: {character.race}</p>
+            <div className="character-stats">
+              <span>STR: {character.strength}</span>
+              <span>DEX: {character.dexterity}</span>
+              <span>INT: {character.intelligence}</span>
+            </div>
+          </div>
         ))}
-      </select>
-      
-      <button 
-        onClick={() => selectedCharacter && onJoin(selectedCharacter)}
-        disabled={!selectedCharacter}
-      >
-        Join Session
-      </button>
-      
-      {characters.length === 0 && (
-        <p>No characters available. Create one first.</p>
-      )}
+      </div>
     </div>
   );
 };
