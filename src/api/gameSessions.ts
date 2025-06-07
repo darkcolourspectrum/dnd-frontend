@@ -147,3 +147,37 @@ export const toggleReadyStatus = async (sessionId: string, token: string): Promi
     throw new Error('Failed to toggle ready status');
   }
 };
+
+export const deleteSession = async (sessionId: string, token: string): Promise<{ message: string }> => {
+  try {
+    const response = await axios.delete(
+      `${API_CONFIG.BASE_URL}/gamesessions/${sessionId}`,
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        } 
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Delete session error:', error);
+    throw new Error('Failed to delete session');
+  }
+};
+
+export const getMyOwnedSessions = async (token: string): Promise<GameSession[]> => {
+  try {
+    const response = await axios.get(
+      `${API_CONFIG.BASE_URL}/gamesessions/my-sessions`,
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        } 
+      }
+    );
+    return response.data || [];
+  } catch (error) {
+    console.error('Error fetching my sessions:', error);
+    return [];
+  }
+};

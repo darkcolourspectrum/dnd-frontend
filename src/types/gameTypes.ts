@@ -6,6 +6,8 @@ export interface Character {
   strength: number;
   dexterity: number;
   intelligence: number;
+  level?: number; // Добавляем опциональное поле level
+  experience?: number; // Добавляем опциональное поле experience
 }
 
 export interface GameSession {
@@ -14,6 +16,7 @@ export interface GameSession {
   status: 'waiting' | 'active' | 'finished';
   max_players: number;
   players: SessionPlayer[];
+  created_at?: string; // Добавляем опциональное поле created_at
 }
 
 export interface SessionPlayer {
